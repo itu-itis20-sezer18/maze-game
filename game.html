@@ -1,0 +1,392 @@
+<!doctype html>
+<html xmlns="http://www.w3.org/1999/html">
+
+<head>
+	<meta charset="UTF-8" />
+	<title>Gematria Maze Game</title>
+	<style>
+	* {
+		padding: 0;
+		margin: 0;
+	}
+	
+	#timerel {
+		background: #5432f6;
+		display: block;
+		margin: 0 auto;
+		height: 30px;
+		color: white;
+	}
+	
+	#score {
+		background: #eeeeee;
+		display: block;
+		position: fixed;
+		right: 0;
+		bottom: 0;
+		height: 30px;
+	}
+	</style>
+	<style>
+	.center {
+		position: relative;
+		left: 50%;
+		top: 50%;
+		transform: translate(-50%, -50%);
+	}
+	
+	.notify-window {
+		position: absolute;
+		top: 40%;
+		left: 50%;
+		transform: translate(-50%, -40%);
+		z-index: 9999;
+		width: 100%;
+		max-width: 500px;
+		padding-top: 40px;
+		padding-bottom: 30px;
+		background-color: #ffffff;
+		color: #000;
+		border-radius: 8px;
+	}
+	
+	.card1 {
+		position: fixed;
+		top: 0;
+		width: 100vw;
+		height: 100vh;
+		background-color: rgb(52 58 64 / 50%);
+		z-index: 9999;
+	}
+	
+	.btn-prim {
+		border-radius: 25px;
+		width: 100%;
+		max-width: 150px;
+		padding: 0.6rem 0;
+		background-color: #5432f6;
+		border: none;
+		color: white;
+	}
+	
+	.btn-white {
+		outline: none;
+		border-radius: 25px;
+		width: 100%;
+		max-width: 150px;
+		padding: 0.6rem 0;
+		border: 1px solid #5432f6;
+		background-color: white;
+	}
+	</style>
+</head>
+
+<body>
+	<div id="timerel" style="margin-left:auto; margin-right:auto;margin-top:0px;text-align: center;width: 15%;font-size: large"></div>
+	<div id="score" style="margin-left:auto; margin-right:0;margin-top:0px;text-align: center;width: 15%;font-size: large"></div> <pre id="out" class="center" style="position: absolute;"></pre>
+	<section class="card1" id="myModal" style="display: none;">
+		<div class="container-fluid notify-window">
+			<div class="row d-flex align-items-center justify-content-center">
+				<div class="col-12 text-center" style="text-align: center;">
+					<h2 class="gamehead"></h2> </div>
+			</div>
+			<br>
+			<br>
+			<br>
+			<br>
+			<br>
+			<br>
+			<br>
+			<div class="row">
+				<div class="col"> <img alt="" src="giphy.webp" style="height: 200px" class="center" id="gif"> </div>
+			</div>
+			<div class="row">
+				<div class="col">
+					<button class="btn btn-prim center" style="cursor:pointer;" onclick="refreshPage();">Play Again</button>
+				</div>
+				<br>
+				<div class="col">
+					<button class="btn btn-white center" style="color:#5432f6;cursor: pointer;" onclick="goBack();">Main Menu</button>
+				</div>
+			</div>
+		</div>
+	</section>
+	<script>
+	function refreshPage() {
+		location.reload();
+	}
+
+	function goBack() {
+		window.location.href = "index.html"
+	}
+
+	function getUrlVars() {
+		var vars = {};
+		var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m, key, value) {
+			vars[key] = value;
+		});
+		return vars;
+	}
+	var line = [];
+	var a = Number(getUrlVars()["a"]);
+	var b = Number(getUrlVars()["b"]);
+	var maze_result;
+	var text;
+	var current_x = 2,
+		current_y = 0;
+	var playing = true;
+	var score = 0;
+	var diff;
+
+	function duom() {
+		current_x = 2, current_y = 0;
+		line = [], text = [];
+		document.getElementById('out').innerHTML = display(maze(a, b, true));
+	}
+	duom();
+
+	function maze(x, y, is_new_maze) {
+		if(!is_new_maze) return maze_result;
+		var n = x * y - 1;
+		if(n < 0) {
+			alert("illegal maze dimensions");
+			return;
+		}
+		var horiz = [];
+		for(var j = 0; j < x + 1; j++) horiz[j] = [];
+		var verti = [];
+		for(var j = 0; j < y + 1; j++) verti[j] = [];
+		var here = [Math.floor(Math.random() * x), Math.floor(Math.random() * y)];
+		var path = [here];
+		var unvisited = [];
+		for(var j = 0; j < x + 2; j++) {
+			unvisited[j] = [];
+			for(var k = 0; k < y + 1; k++) unvisited[j].push(j > 0 && j < x + 1 && k > 0 && (j != here[0] + 1 || k != here[1] + 1));
+		}
+		while(0 < n) {
+			var potential = [
+				[here[0] + 1, here[1]],
+				[here[0], here[1] + 1],
+				[here[0] - 1, here[1]],
+				[here[0], here[1] - 1]
+			];
+			var neighbors = [];
+			for(var j = 0; j < 4; j++)
+				if(unvisited[potential[j][0] + 1][potential[j][1] + 1]) neighbors.push(potential[j]);
+			if(neighbors.length) {
+				n = n - 1;
+				next = neighbors[Math.floor(Math.random() * neighbors.length)];
+				unvisited[next[0] + 1][next[1] + 1] = false;
+				if(next[0] == here[0]) horiz[next[0]][(next[1] + here[1] - 1) / 2] = true;
+				else verti[(next[0] + here[0] - 1) / 2][next[1]] = true;
+				path.push(here = next);
+			} else here = path.pop();
+		}
+		maze_result = ({
+			x: x,
+			y: y,
+			horiz: horiz,
+			verti: verti
+		});
+		return maze_result;
+	}
+
+	function display(m) {
+		text = [];
+		for(var j = 0; j < m.x * 2 + 1; j++) {
+			if(0 == j % 2)
+				for(var k = 0; k < m.y * 4 + 1; k++)
+					if(0 == k % 4) line[k] = 'x';
+					else
+			if(j > 0 && m.verti[j / 2 - 1][Math.floor(k / 4)])
+				if(Math.random() >= 0.95) {
+					line[k] = 'C';
+				} else {
+					line[k] = ' ';
+				} else line[k] = 'x';
+			else
+				for(var k = 0; k < m.y * 4 + 1; k++)
+					if(0 == k % 4)
+						if(k > 0 && m.horiz[(j - 1) / 2][k / 4 - 1])
+							if(Math.random() >= 0.95) {
+								line[k] = 'C';
+							} else {
+								line[k] = ' ';
+							} else line[k] = 'x';
+			else line[k] = ' ';
+			if(0 == j) line[1] = line[3] = ' ', line[2] = 'Y';
+			if(m.x * 2 - 1 == j) line[4 * m.y] = 'E';
+			text.push(line.join('') + '\r\n');
+		}
+		return text.join('');
+	}
+	// Get the modal
+	var modal = document.getElementById('myModal');
+	modelfungo = function() {
+		modal.style.display = "block";
+		x = document.querySelector(".gamehead");
+		var gif = document.getElementById('gif');
+		gif.src = "giphy.webp";
+		x.textContent = "Game Over, Score: " + score;
+	}
+	modelfunwin = function() {
+		score += diff * a * b;
+		var scoreElement = document.getElementById('score');
+		scoreElement.textContent = "Score: " + score;
+		modal.style.display = "block";
+		var gif = document.getElementById('gif');
+		gif.src = "win-gif.gif";
+		x = document.querySelector(".gamehead");
+		var highScore = localStorage.getItem("hs");
+		if(highScore) {
+			if(score > highScore) {
+				x.textContent = "New High Score, Score: " + score;
+				window.localStorage.setItem("hs", score);
+			} else {
+				x.textContent = "You Win, Score: " + score + "\n     High Score: " + highScore;
+			}
+		} else {
+			x.textContent = "New High Score, Score: " + score;
+			window.localStorage.setItem("hs", score);
+		}
+	}
+
+	function addToScore() {
+		score += 50;
+		var scoreElement = document.getElementById('score');
+		scoreElement.textContent = "Score: " + score;
+	}
+
+	function startTimer(duration, display) {
+		var start = Date.now(),
+			minutes,
+			seconds;
+
+		function timer() {
+			if(playing) {
+				diff = duration - (((Date.now() - start) / 1000) | 0);
+				minutes = (diff / 60) | 0;
+				seconds = (diff % 60) | 0;
+				minutes = minutes < 10 ? "0" + minutes : minutes;
+				seconds = seconds < 10 ? "0" + seconds : seconds;
+				display.textContent = "Game ends in " + minutes + ":" + seconds;
+				var scoreElement = document.getElementById('score');
+				scoreElement.textContent = "Score: " + score;
+				if(diff <= 0) {
+					display.textContent = "Game Over";
+					start = Date.now() + 1000;
+					playing = false
+					modelfungo();
+				}
+			}
+		};
+		timer();
+		setInterval(timer, 1000)
+	}
+	window.onload = function() {
+		mins = 10 * a;
+		x = document.querySelector("#timerel");
+		startTimer(mins, x)
+	}
+	window.addEventListener('keydown', doKeyDown, true);
+
+	function didSolve() {
+		if(text[current_y].charAt(current_x) == 'E') {
+			playing = false;
+			modelfunwin();
+			return true;
+		}
+		if(text[current_y].charAt(current_x) == 'C') {
+			addToScore();
+			return true;
+		}
+		return false;
+	}
+
+	function goUp() {
+		if(text[current_y - 1].charAt(current_x) != 'x') {
+			text[current_y] = text[current_y].substring(0, current_x) + ' ' + text[current_y].substring(current_x + 1);
+			current_y--;
+			didSolve();
+			text[current_y] = text[current_y].substring(0, current_x) + 'Y' + text[current_y].substring(current_x + 1);
+			document.getElementById('out').innerHTML = text.join('');
+		}
+	}
+
+	function goDown() {
+		if(text[current_y + 1].charAt(current_x) != 'x') {
+			text[current_y] = text[current_y].substring(0, current_x) + ' ' + text[current_y].substring(current_x + 1);
+			current_y++;
+			didSolve();
+			text[current_y] = text[current_y].substring(0, current_x) + 'Y' + text[current_y].substring(current_x + 1);
+			document.getElementById('out').innerHTML = text.join('');
+		}
+	}
+
+	function goLeft() {
+		if(text[current_y].charAt(current_x - 1) != 'x') {
+			text[current_y] = text[current_y].substring(0, current_x) + ' ' + text[current_y].substring(current_x + 1);
+			current_x--;
+			didSolve();
+			text[current_y] = text[current_y].substring(0, current_x) + 'Y' + text[current_y].substring(current_x + 1);
+			document.getElementById('out').innerHTML = text.join('');
+		}
+	}
+
+	function goRight() {
+		if(text[current_y].charAt(current_x + 1) != 'x') {
+			text[current_y] = text[current_y].substring(0, current_x) + ' ' + text[current_y].substring(current_x + 1);
+			current_x++;
+			didSolve();
+			text[current_y] = text[current_y].substring(0, current_x) + 'Y' + text[current_y].substring(current_x + 1);
+			document.getElementById('out').innerHTML = text.join('');
+		}
+	}
+
+	function doKeyDown(evt) {
+		var handled = false;
+		if(playing) {
+			switch(evt.keyCode) {
+				case 38:
+					/* Up arrow was pressed */ if(current_y == 0) break;
+					console.log("up clicked", maze_result, text[current_y])
+					goUp();
+					handled = true
+					break;
+				case 87:
+					/* Up arrow was pressed */ goUp();
+					handled = true
+					break;
+				case 40:
+					/* Down arrow was pressed */ goDown();
+					handled = true
+					break;
+				case 83:
+					/* Down arrow was pressed */ goDown();
+					handled = true
+					break;
+				case 37:
+					/* Left arrow was pressed */ goLeft();
+					handled = true
+					break;
+				case 65:
+					/* Left arrow was pressed */ goLeft();
+					handled = true
+					break;
+				case 39:
+					/* Right arrow was pressed */ goRight();
+					handled = true
+					break;
+				case 68:
+					/* Right arrow was pressed */ goRight();
+					handled = true
+					break;
+			}
+		}
+		if(handled) evt.preventDefault();
+	}
+	</script>
+	<script></script>
+</body>
+
+</html>

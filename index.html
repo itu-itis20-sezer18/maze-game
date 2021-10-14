@@ -1,0 +1,146 @@
+<!doctype html>
+<html xmlns="http://www.w3.org/1999/html">
+
+<head>
+	<meta charset="UTF-8" />
+	<title>Gematria Maze Game</title>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+	<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+	<style>
+	.center {
+		position: relative;
+		left: 50%;
+		top: 50%;
+		transform: translate(-50%, 50%);
+	}
+	
+	.btn-prim {
+		border-radius: 25px;
+		width: 100%;
+		max-width: 150px;
+		padding: 0.6rem 0;
+		background-color: #5432f6;
+		border: none;
+		color: white;
+	}
+	
+	.btn-white {
+		outline: none;
+		border-radius: 25px;
+		width: 100%;
+		max-width: 150px;
+		padding: 0.6rem 0;
+		border: 1px solid #5432f6;
+		background-color: white;
+		color: #5432f6;
+	}
+	</style>
+</head>
+
+<body style="height: 100vh;background-color: rgb(52 58 64 / 50%);">
+	<div class=".container-fluid d-flex justify-content-center" style="background-color: white;width: 60%;height: fit-content;position: absolute;top: 50%;left:50%;transform: translate(-50%,-50%);border-radius: 20px;">
+		<div>
+			<div class="row pt-5">
+				<div class="col" style="text-align: center;">
+					<h2 style="color: #5432f6;">Welcome to the Maze Game</h2> </div>
+			</div>
+			<div class="row pt-1" id="play-row">
+				<div class="col d-flex justify-content-center"> <img src="play.gif" class="" style="height: 200px" alt="play"> </div>
+			</div>
+			<div class="row pt-1" id="hs-row">
+				<div class="col" style="text-align: center;">
+					<h2 style="color: #5432f6;" id="high-score"></h2> </div>
+			</div>
+			<br>
+			<div class="row" id="diff-col">
+				<div class="col d-flex justify-content-center">
+					<select class="form-select" aria-label="Difficulty option" id="diff-opt">
+						<option selected value="1">Choose difficulty</option>
+						<option value="3">Easy</option>
+						<option value="6">Normal</option>
+						<option value="10">Hard</option>
+						<option value="15">Impossible</option>
+					</select>
+				</div>
+			</div>
+			<div class="row pt-3" id="start-button">
+				<div class="col d-flex justify-content-center" style="z-index:1">
+					<button class="btn btn-prim" onClick="start();">Start</button>
+				</div>
+			</div>
+			<div class="row pt-2 pb-2" id="editor-button">
+				<div class="col d-flex justify-content-center">
+					<button class="btn btn-white" onClick="showEditorMode();">Editor Mode</button>
+				</div>
+			</div>
+			<div class="row pt-1" id="custom" style="display: none;">
+				<div class="col" style="padding-bottom: 15%;">
+					<div id="maze">
+						<form style="text-align:center" name="forma1">
+							<br>
+							<label style="color: #5432f6;font-weight: 500;">Height:</label>
+							<br>
+							<input type="text" id="height" name="height" autofocus="autofocus" maxlength="2" size="6" />
+							<br>
+							<label style="color: #5432f6;font-weight: 500;">Width:</label>
+							<br>
+							<input type="text" id="width" name="width" maxlength="2" size="6" />
+							<br> </form>
+						<input type="button" alt="submit" onClick="startCustomGame();" class="btn btn-prim center" value="Generate" style="margin-top:10px;">
+						<br>
+						<br>
+						<button class="btn btn-white center" onClick="showNormalMode();">Back</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<script>
+		var highScore = localStorage.getItem("hs");
+		if(highScore) {
+			document.getElementById("high-score").textContent = "High Score: " + highScore;
+		} else {
+			document.getElementById("high-score").textContent = "High Score: 0";
+		}
+
+		function start() {
+			var diff = document.getElementById("diff-opt");
+			var diffValue = diff.value;
+            if(diffValue == "1"){
+                alert("Please select the game difficulty!");
+                return;
+            }
+			window.location.href = 'game.html?a=' + diffValue + '&b=' + diffValue;
+		}
+
+		function startCustomGame() {
+			a = parseInt(document.getElementById("height").value);
+			b = parseInt(document.getElementById("width").value);
+            if(a & b)
+			    window.location.href = 'game.html?a=' + a + '&b=' + b;
+            else
+                alert("Please select both height and width!")
+		}
+
+		function showEditorMode() {
+			document.getElementById("diff-col").style.display = "none";
+			document.getElementById("start-button").style.display = "none";
+			document.getElementById("editor-button").style.display = "none";
+			document.getElementById("hs-row").style.display = "none";
+			document.getElementById("play-row").style.display = "none";
+			document.getElementById("custom").style.display = "block";
+		}
+
+		function showNormalMode() {
+			document.getElementById("diff-col").style.display = "block";
+			document.getElementById("start-button").style.display = "block";
+			document.getElementById("editor-button").style.display = "block";
+			document.getElementById("play-row").style.display = "block";
+			document.getElementById("hs-row").style.display = "block";
+			document.getElementById("custom").style.display = "none";
+		}
+		</script>
+</body>
+
+</html>
